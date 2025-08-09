@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FURB</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style src="style.css"></style>
+</head>
+
+<body>
+
+  <header>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">Gerenciador de Fotos</a>
+        <ul class="navbar-nav">
+          <li class="nav-item"><a class="nav-link" href="#" onclick="showSectionByName('inserir')">Inserir</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" onclick="showSectionByName('listar')">Listar</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" onclick="showSectionByName('excluir')">Excluir</a></li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section id="secao-inserir" class="card">
+      <div class="card-body">
+        <h5 class="card-title">Inserir Nova Foto</h5>
+        <form id="formInserir">
+          <div class="mb-3">
+            <label for="title" class="form-label">Título</label>
+            <input type="text" id="title" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label for="url" class="form-label">URL da Imagem</label>
+            <input type="url" id="url" class="form-control" required>
+          </div>
+          <button type="submit" class="btn btn-success">Adicionar</button>
+        </form>
+      </div>
+    </section>
+
+    <section id="secao-listar" class="card d-none">
+      <div class="card-body">
+        <h5 class="card-title">Lista de Fotos</h5>
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Título</th>
+              <th>Photo</th>
+            </tr>
+          </thead>
+          <tbody id="tabelaFotos"></tbody>
+        </table>
+        <nav>
+          <ul class="pagination">
+            <li class="page-item"><a class="page-link" href="#" onclick="prevPage()">Anterior</a></li>
+            <li class="page-item"><a class="page-link" href="#" onclick="nextPage()">Próximo</a></li>
+          </ul>
+        </nav>
+      </div>
+    </section>
+
+    <section id="secao-excluir" class="card d-none">
+      <div class="card-body">
+        <h5 class="card-title">Excluir Foto</h5>
+        <div class="mb-3">
+          <label for="idExcluir" class="form-label">ID da Foto</label>
+          <input type="number" id="idExcluir" class="form-control" required>
+        </div>
+        <button class="btn btn-danger" onclick="removePhoto()">Excluir</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
