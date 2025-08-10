@@ -1,144 +1,162 @@
-const API_URL = "https://jsonplaceholder.typicode.com/photos";
+let images = getImages();
 
-let photos = [];
+let currentIndex = 0;
 
-let currPage = 1;
-const maxPerPage = 10;
+const imgElement = document.getElementById("carousel-image");
+const imageContainer = document.getElementById("image-container");
+const bgElement = document.querySelector(".background");
+const paginatorElement = document.getElementById("paginator");
+const prevBtn = document.getElementById("prev");
+const nextBtn = document.getElementById("next");
 
-document.addEventListener("DOMContentLoaded", () => {
-  loadPhotos();
+const modalOverlay = document.getElementById("modal-overlay");
+const addImageBtn = document.getElementById("add-image");
+const deleteImageBtn = document.getElementById("delete-image");
+const cancelAddBtn = document.getElementById("cancel-add");
+const confirmAddBtn = document.getElementById("confirm-add");
+const imageUrlInput = document.getElementById("image-url-input");
 
-  document
-    .getElementById("formInserir")
-    .addEventListener("submit", addPhoto);
+function noImages() {
+  return images.length === 0;
+}
+
+function getImages() {
+  console.info("Retrieving images from `localStorage`.");
+
+  const stored = localStorage.getItem("images");
+
+  if (!stored) {
+    return [];
+  }
+
+  try {
+    return JSON.parse(stored);
+  } catch {
+    console.error("Error trying to load images from localStorage.");
+  }
+}
+
+function persistImages(images) {
+  console.info("Saving images to `localStorage`.");
+
+  localStorage.setItem("images", JSON.stringify(images));
+}
+
+function renderNoImages() {
+  console.info("No images to render.");
+
+  imageContainer.innerHTML = `<p class="empty-message">
+      Nenhuma imagem disponível 
+    </p>`;
+
+  bgElement.style.backgroundImage = "none";
+  paginatorElement.textContent = "";
+  prevBtn.disabled = true;
+  nextBtn.disabled = true;
+  deleteImageBtn.disabled = true;
+}
+
+function updateImage(index) {
+  if (images.length === 0) {
+    return renderNoImages();
+  }
+
+  if (!document.getElementById("carousel-image")) {
+    imageContainer.innerHTML = `<img id="carousel-image" src="" alt="Imagem do carrossel" />`;
+  }
+
+  const img = document.getElementById("carousel-image");
+  img.style.opacity = 0;
+
+  setTimeout(() => {
+    img.src = images[index];
+    bgElement.style.backgroundImage = `url('${images[index]}')`;
+    paginatorElement.textContent = `Imagem ${index + 1} de ${images.length}`;
+    img.style.opacity = 1;
+  }, 300);
+
+  prevBtn.disabled = false;
+  nextBtn.disabled = false;
+  deleteImageBtn.disabled = false;
+}
+
+function openAddImageModal() {
+  imageUrlInput.value = "";
+  modalOverlay.classList.add("active");
+  imageUrlInput.focus();
+}
+
+function closeAddImageModal() {
+  modalOverlay.classList.remove("active");
+}
+
+function saveNewImage() {
+  const url = imageUrlInput.value.trim();
+
+  if (!url) {
+    return;
+  }
+
+  images.push(url);
+  persistImages(images);
+  currentIndex = images.length - 1;
+
+  updateImage(currentIndex);
+
+  closeAddImageModal();
+}
+
+prevBtn.addEventListener("click", () => {
+  if (noImages()) {
+    return;
+  }
+
+  currentIndex = (currentIndex - 1 + images.length) % images.length;
+
+  updateImage(currentIndex);
 });
 
-function showSectionByName(name) {
-  function hideAllSections() {
-    document.querySelectorAll("main section")
-      .forEach(s => s.classList.add("d-none"));
+nextBtn.addEventListener("click", () => {
+  if (noImages()) {
+    return;
   }
 
-  function showSection(name) {
-    document.getElementById(`secao-${name}`)
-      .classList
-      .remove("d-none");
+  currentIndex = (currentIndex + 1) % images.length;
+
+  updateImage(currentIndex);
+});
+
+addImageBtn.addEventListener("click", () => {
+  openAddImageModal();
+});
+
+confirmAddBtn.addEventListener("click", () => {
+  saveNewImage();
+});
+
+document.getElementById("delete-image").addEventListener("click", () => {
+  if (images.length === 0) {
+    updateImage(0);
+    return;
   }
 
-  hideAllSections();
-  showSection(name);
-}
+  images.splice(currentIndex, 1);
 
-function hasElements(arr) {
-  return arr && arr.length;
-}
+  persistImages(images);
 
-async function loadPhotos() {
-  let localPhotos = JSON.parse(localStorage.getItem("fotos"));
-
-  if (hasElements(localPhotos)) {
-    photos = localPhotos;
-  } else {
-    const res = await fetch(API_URL + "?_limit=50");
-    photos = await res.json();
-
-    photos = photos.map(photo => ({
-      ...photo,
-      createdAt: new Date().toISOString()
-    }));
-
-    persistPhotos();
+  if (currentIndex >= images.length) {
+    currentIndex = 0;
   }
 
-  sortPhotosByDate();
-  renderPhotos();
-}
+  updateImage(currentIndex);
+});
 
-function sortPhotosByDate() {
-  photos.sort((a, b) => {
-    // Default to current date if createdAt doesn't exist
-    const dateA = a.createdAt ? new Date(a.createdAt) : new Date();
-    const dateB = b.createdAt ? new Date(b.createdAt) : new Date();
-    return dateB - dateA; // Sort newest first
-  });
-}
-
-function renderPhotos() {
-  const photosToRender = getPhotosToRender();
-
-  const tbody = document.getElementById("tabelaFotos");
-  tbody.innerHTML = "";
-
-  photosToRender.forEach(photo => {
-    tbody.innerHTML += `
-      <tr>
-        <td>${photo.id}</td>
-        <td>${photo.title}</td>
-        <td><img src="${photo.url}" alt="${photo.title}"></td>
-      </tr>
-    `;
-  });
-}
-
-function getPhotosToRender() {
-  const start = (currPage - 1) * maxPerPage;
-  const end = start + maxPerPage;
-
-  return photos.slice(start, end);
-}
-
-function nextPage() {
-  if (currPage * maxPerPage < photos.length) {
-    currPage++;
-    renderPhotos();
+window.onkeydown = (event) => {
+  if (event.key !== "Escape" || !modalOverlay.classList.contains("active")) {
+    return;
   }
-}
 
-function prevPage() {
-  if (currPage > 1) {
-    currPage--;
-    renderPhotos();
-  }
-}
+  closeAddImageModal();
+};
 
-function addPhoto(event) {
-  event.preventDefault();
-
-  const title = document.getElementById("title").value;
-  const url = document.getElementById("url").value;
-
-  const newPhoto = {
-    id: photos.length ? photos[photos.length - 1].id + 1 : 1,
-    title,
-    url,
-    createdAt: new Date().toISOString()
-  };
-
-  photos.push(newPhoto);
-  persistPhotos();
-  sortPhotosByDate();
-  renderPhotos();
-
-  event.target.reset();
-
-  alert("Foto adicionada com sucesso!");
-}
-
-function removePhoto() {
-  const photoToRemoveId = parseInt(document.getElementById("idExcluir").value);
-
-  const index = photos.findIndex(f => f.id === photoToRemoveId);
-  if (index !== -1) {
-    photos.splice(index, 1);
-    persistPhotos();
-    renderPhotos();
-
-    alert("Foto removida!");
-  } else {
-    alert("Foto não encontrada!");
-  }
-}
-
-function persistPhotos() {
-  localStorage.setItem("fotos", JSON.stringify(photos));
-}
+updateImage(currentIndex);
