@@ -2,28 +2,28 @@ let images = getImages();
 
 let currentIndex = 0;
 
-const imgElement = document.getElementById("carousel-image");
-const imageContainer = document.getElementById("image-container");
-const bgElement = document.querySelector(".background");
-const paginatorElement = document.getElementById("paginator");
-const prevBtn = document.getElementById("prev");
-const nextBtn = document.getElementById("next");
+const imgElement = document.getElementById('carousel-image');
+const imageContainer = document.getElementById('image-container');
+const bgElement = document.querySelector('.background');
+const paginatorElement = document.getElementById('paginator');
+const prevBtn = document.getElementById('prev');
+const nextBtn = document.getElementById('next');
 
-const modalOverlay = document.getElementById("modal-overlay");
-const addImageBtn = document.getElementById("add-image");
-const deleteImageBtn = document.getElementById("delete-image");
-const cancelAddBtn = document.getElementById("cancel-add");
-const confirmAddBtn = document.getElementById("confirm-add");
-const imageUrlInput = document.getElementById("image-url-input");
+const modalOverlay = document.getElementById('modal-overlay');
+const addImageBtn = document.getElementById('add-image');
+const deleteImageBtn = document.getElementById('delete-image');
+const cancelAddBtn = document.getElementById('cancel-add');
+const confirmAddBtn = document.getElementById('confirm-add');
+const imageUrlInput = document.getElementById('image-url-input');
 
 function noImages() {
   return images.length === 0;
 }
 
 function getImages() {
-  console.info("Retrieving images from `localStorage`.");
+  console.info('Retrieving images from `localStorage`.');
 
-  const stored = localStorage.getItem("images");
+  const stored = localStorage.getItem('images');
 
   if (!stored) {
     return [];
@@ -32,25 +32,25 @@ function getImages() {
   try {
     return JSON.parse(stored);
   } catch {
-    console.error("Error trying to load images from localStorage.");
+    console.error('Error trying to load images from localStorage.');
   }
 }
 
 function persistImages(images) {
-  console.info("Saving images to `localStorage`.");
+  console.info('Saving images to `localStorage`.');
 
-  localStorage.setItem("images", JSON.stringify(images));
+  localStorage.setItem('images', JSON.stringify(images));
 }
 
 function renderNoImages() {
-  console.info("No images to render.");
+  console.info('No images to render.');
 
   imageContainer.innerHTML = `<p class="empty-message">
       Nenhuma imagem disponível 
     </p>`;
 
-  bgElement.style.backgroundImage = "none";
-  paginatorElement.textContent = "";
+  bgElement.style.backgroundImage = 'none';
+  paginatorElement.textContent = '';
   prevBtn.disabled = true;
   nextBtn.disabled = true;
   deleteImageBtn.disabled = true;
@@ -61,11 +61,11 @@ function updateImage(index) {
     return renderNoImages();
   }
 
-  if (!document.getElementById("carousel-image")) {
+  if (!document.getElementById('carousel-image')) {
     imageContainer.innerHTML = `<img id="carousel-image" src="" alt="Imagem do carrossel" />`;
   }
 
-  const img = document.getElementById("carousel-image");
+  const img = document.getElementById('carousel-image');
   img.style.opacity = 0;
 
   setTimeout(() => {
@@ -81,13 +81,13 @@ function updateImage(index) {
 }
 
 function openAddImageModal() {
-  imageUrlInput.value = "";
-  modalOverlay.classList.add("active");
+  imageUrlInput.value = '';
+  modalOverlay.classList.add('active');
   imageUrlInput.focus();
 }
 
 function closeAddImageModal() {
-  modalOverlay.classList.remove("active");
+  modalOverlay.classList.remove('active');
 }
 
 function saveNewImage() {
@@ -106,7 +106,7 @@ function saveNewImage() {
   closeAddImageModal();
 }
 
-prevBtn.addEventListener("click", () => {
+prevBtn.addEventListener('click', () => {
   if (noImages()) {
     return;
   }
@@ -116,7 +116,7 @@ prevBtn.addEventListener("click", () => {
   updateImage(currentIndex);
 });
 
-nextBtn.addEventListener("click", () => {
+nextBtn.addEventListener('click', () => {
   if (noImages()) {
     return;
   }
@@ -126,15 +126,15 @@ nextBtn.addEventListener("click", () => {
   updateImage(currentIndex);
 });
 
-addImageBtn.addEventListener("click", () => {
+addImageBtn.addEventListener('click', () => {
   openAddImageModal();
 });
 
-confirmAddBtn.addEventListener("click", () => {
+confirmAddBtn.addEventListener('click', () => {
   saveNewImage();
 });
 
-document.getElementById("delete-image").addEventListener("click", () => {
+document.getElementById('delete-image').addEventListener('click', () => {
   if (images.length === 0) {
     updateImage(0);
     return;
@@ -152,7 +152,7 @@ document.getElementById("delete-image").addEventListener("click", () => {
 });
 
 window.onkeydown = (event) => {
-  if (event.key !== "Escape" || !modalOverlay.classList.contains("active")) {
+  if (event.key !== 'Escape' || !modalOverlay.classList.contains('active')) {
     return;
   }
 
