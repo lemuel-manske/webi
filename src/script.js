@@ -57,6 +57,8 @@ function renderNoImages() {
 }
 
 function updateImage(index) {
+  console.info("Displaying new image");
+
   if (images.length === 0) {
     return renderNoImages();
   }
@@ -91,6 +93,8 @@ function closeAddImageModal() {
 }
 
 function saveNewImage() {
+  console.info('Saving new image.');
+
   const url = imageUrlInput.value.trim();
 
   if (!url) {
@@ -107,6 +111,8 @@ function saveNewImage() {
 }
 
 prevBtn.addEventListener('click', () => {
+  console.info("Navigating to previous image");
+
   if (noImages()) {
     return;
   }
@@ -117,6 +123,8 @@ prevBtn.addEventListener('click', () => {
 });
 
 nextBtn.addEventListener('click', () => {
+  console.info("Navigating to next image");
+
   if (noImages()) {
     return;
   }
@@ -135,6 +143,8 @@ confirmAddBtn.addEventListener('click', () => {
 });
 
 document.getElementById('delete-image').addEventListener('click', () => {
+  console.info("Deleting image");
+
   if (images.length === 0) {
     updateImage(0);
     return;
@@ -159,4 +169,5 @@ window.onkeydown = (event) => {
   closeAddImageModal();
 };
 
+// Starts carousel at first image
 updateImage(currentIndex);
