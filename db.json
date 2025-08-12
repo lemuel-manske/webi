@@ -1,0 +1,12 @@
+{
+  "photos": [
+    {
+      "id": 1,
+      "url": "https://www.w3.org/StyleSheets/TR/2021/logos/W3C"
+    },
+    {
+      "id": 2,
+      "url": "https://www.w3.org/TR/wai-aria-1.2/img/accessibleelement.png"
+    }
+  ]
+}
