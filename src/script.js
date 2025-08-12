@@ -1,4 +1,4 @@
-let images = getImages();
+let images = getStoredImages();
 
 let currentIndex = 0;
 
@@ -24,7 +24,7 @@ function justOneImage() {
   return images.length === 1;
 }
 
-function getImages() {
+function getStoredImages() {
   console.info('Retrieving images from `localStorage`.');
 
   const stored = localStorage.getItem('images');
@@ -36,7 +36,20 @@ function getImages() {
   try {
     return JSON.parse(stored);
   } catch {
-    console.error('Error trying to load images from localStorage.');
+    console.error('Error trying to load images from `localStorage`.');
+  }
+}
+
+function getApiImages() {
+  console.info('Retrieving images from api.');
+
+  const apiImages = fetch('https://jsonplaceholder.typicode.com/photos?_limit=50')
+    .then(res => res.json())
+
+  try {
+    return apiImages;
+  } catch {
+    console.error('Error trying to load images from API.');
   }
 }
 
