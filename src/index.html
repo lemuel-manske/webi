@@ -1,65 +1,59 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>FURB - Carrossel</title>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <link rel="icon" type="image/x-icon" href="favicon.ico" />
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <div class="background"></div>
+  <title>FURB - Carrossel</title>
 
-    <main>
-      <section aria-label="Carrossel de imagens">
-        <figure>
-          <div id="image-container">
-            <img id="carousel-image" src="" alt="Imagem do carrossel" />
-          </div>
-          <figcaption id="paginator"></figcaption>
-        </figure>
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
 
-        <nav aria-label="Controles de navegação do carrossel">
-          <button id="prev">◀ Anterior</button>
-          <button id="next">Próximo ▶</button>
-        </nav>
+<body>
+  <div class="background"></div>
 
-        <div class="manage-buttons">
-          <button id="add-image">➕</button>
-          <button id="delete-image">🗑️</button>
+  <main>
+    <section aria-label="Carrossel de imagens">
+      <figure>
+        <div id="image-container">
+          <img id="carousel-image" src="" alt="Imagem do carrossel" />
         </div>
-      </section>
-    </main>
+        <figcaption id="paginator"></figcaption>
+      </figure>
 
-    <div
-      class="modal-overlay"
-      id="modal-overlay"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="modal-title"
-      aria-describedby="modal-desc"
-    >
-      <form class="modal" name="add-image">
-        <h2 id="modal-title" hidden aria-hidden="true">
-          Adicionar nova imagem
-        </h2>
+      <nav aria-label="Controles de navegação do carrossel">
+        <button id="prev">◀ Anterior</button>
+        <button id="next">Próximo ▶</button>
+      </nav>
 
-        <label for="image-url-input" aria-hidden="true">URL</label>
+      <div class="manage-buttons">
+        <button id="add-image">Nova</button>
+        <button id="edit-image">Atualizar</button>
+        <button id="delete-image">Remover</button>
+      </div>
+    </section>
+  </main>
 
-        <input
-          type="url"
-          id="image-url-input"
-          placeholder="https://exemplo.com/imagem.jpg"
-        />
+  <div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title"
+    aria-describedby="modal-desc">
+    <form class="modal" name="add-image">
+      <h2 id="modal-title" hidden aria-hidden="true">
+        Adicionar nova imagem
+      </h2>
 
-        <div class="modal-buttons">
-          <button class="confirm" id="confirm-add">Adicionar</button>
-        </div>
-      </form>
-    </div>
+      <label for="image-url-input" aria-hidden="true">URL</label>
 
-    <script src="script.js"></script>
-  </body>
+      <input type="url" id="image-url-input" placeholder="https://exemplo.com/imagem.jpg" />
+
+      <div class="modal-buttons">
+        <button class="confirm" id="confirm-add">Salvar</button>
+      </div>
+    </form>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
 </html>

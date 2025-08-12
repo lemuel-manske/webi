@@ -7,6 +7,7 @@ const nextBtn = document.getElementById('next');
 
 const modalOverlay = document.getElementById('modal-overlay');
 const addImageBtn = document.getElementById('add-image');
+const editImageBtn = document.getElementById('edit-image');
 const deleteImageBtn = document.getElementById('delete-image');
 const cancelAddBtn = document.getElementById('cancel-add');
 const confirmAddBtn = document.getElementById('confirm-add');
@@ -41,13 +42,16 @@ function getApiImages() {
   }
 }
 
-let images = getApiImages().then(apiImages => {
-  runApplication([...apiImages, ...getStoredImages()]);
-})
+// let images = getApiImages().then(apiImages => {
+// })
+
+runApplication([...getStoredImages()]);
 
 function runApplication(images) {
 
   let currentIndex = 0;
+
+  let maxId = images.reduce((max, img) => Math.max(max, img.id), 0);
 
   function noImages() {
     return images.length === 0;
@@ -92,8 +96,10 @@ function runApplication(images) {
     img.style.opacity = 0;
 
     setTimeout(() => {
-      img.src = images[index];
-      bgElement.style.backgroundImage = `url('${images[index]}')`;
+      const url = images[index].url;
+
+      img.src = url;
+      bgElement.style.backgroundImage = `url('${url}')`;
       paginatorElement.textContent = `Imagem ${index + 1} de ${images.length}`;
       img.style.opacity = 1;
     }, 300);
@@ -113,7 +119,7 @@ function runApplication(images) {
     modalOverlay.classList.remove('active');
   }
 
-  function saveNewImage() {
+  function saveNewImage(id) {
     console.info('Saving new image.');
 
     const url = imageUrlInput.value.trim();
@@ -122,9 +128,21 @@ function runApplication(images) {
       return;
     }
 
-    images.push(url);
-    persistImages(images);
-    currentIndex = images.length - 1;
+    if (!id) {
+      images.push({ id: ++maxId, url });
+      persistImages(images);
+      currentIndex = images.length - 1;
+    } else {
+      const image = images.find(img => img.id === id);
+
+      if (image) {
+        image.url = url;
+        persistImages(images);
+        updateImage(currentIndex);
+      } else {
+        console.error(`Image with id ${id} not found.`);
+      }
+    }
 
     updateImage(currentIndex);
 
@@ -155,12 +173,24 @@ function runApplication(images) {
     updateImage(currentIndex);
   });
 
+  let isAdding = false;
+
   addImageBtn.addEventListener('click', () => {
+    isAdding = true;
+
+    openAddImageModal();
+  });
+
+  editImageBtn.addEventListener('click', () => {
+    isAdding = false;
+
     openAddImageModal();
   });
 
   confirmAddBtn.addEventListener('click', () => {
-    saveNewImage();
+    const currImageId = images[currentIndex].id
+
+    saveNewImage(isAdding ? null : currImageId);
   });
 
   document.getElementById('delete-image').addEventListener('click', () => {
