@@ -42,10 +42,9 @@ function getApiImages() {
   }
 }
 
-// let images = getApiImages().then(apiImages => {
-// })
-
-runApplication([...getStoredImages()]);
+getApiImages().then(apiImages => {
+  runApplication([...getStoredImages(), ...apiImages]);
+})
 
 function runApplication(images) {
 
