@@ -1,7 +1,3 @@
-let images = getStoredImages();
-
-let currentIndex = 0;
-
 const imgElement = document.getElementById('carousel-image');
 const imageContainer = document.getElementById('image-container');
 const bgElement = document.querySelector('.background');
@@ -15,14 +11,6 @@ const deleteImageBtn = document.getElementById('delete-image');
 const cancelAddBtn = document.getElementById('cancel-add');
 const confirmAddBtn = document.getElementById('confirm-add');
 const imageUrlInput = document.getElementById('image-url-input');
-
-function noImages() {
-  return images.length === 0;
-}
-
-function justOneImage() {
-  return images.length === 1;
-}
 
 function getStoredImages() {
   console.info('Retrieving images from `localStorage`.');
@@ -53,138 +41,155 @@ function getApiImages() {
   }
 }
 
-function persistImages(images) {
-  console.info('Saving images to `localStorage`.');
+let images = getApiImages().then(apiImages => {
+  runApplication([...apiImages, ...getStoredImages()]);
+})
 
-  localStorage.setItem('images', JSON.stringify(images));
-}
+function runApplication(images) {
 
-function renderNoImages() {
-  console.info('No images to render.');
+  let currentIndex = 0;
 
-  imageContainer.innerHTML = `<p class="empty-message">
+  function noImages() {
+    return images.length === 0;
+  }
+
+  function justOneImage() {
+    return images.length === 1;
+  }
+
+  function persistImages(images) {
+    console.info('Saving images to `localStorage`.');
+
+    localStorage.setItem('images', JSON.stringify(images));
+  }
+
+  function renderNoImages() {
+    console.info('No images to render.');
+
+    imageContainer.innerHTML = `<p class="empty-message">
       Nenhuma imagem disponível 
     </p>`;
 
-  bgElement.style.backgroundImage = 'none';
-  paginatorElement.textContent = '';
-  prevBtn.disabled = true;
-  nextBtn.disabled = true;
-  deleteImageBtn.disabled = true;
-}
-
-function updateImage(index) {
-  console.info("Displaying new image");
-
-  if (images.length === 0) {
-    return renderNoImages();
+    bgElement.style.backgroundImage = 'none';
+    paginatorElement.textContent = '';
+    prevBtn.disabled = true;
+    nextBtn.disabled = true;
+    deleteImageBtn.disabled = true;
   }
 
-  if (!document.getElementById('carousel-image')) {
-    imageContainer.innerHTML = `<img id="carousel-image" src="" alt="Imagem do carrossel" />`;
+  function updateImage(index) {
+    console.info("Displaying new image");
+
+    if (images.length === 0) {
+      return renderNoImages();
+    }
+
+    if (!document.getElementById('carousel-image')) {
+      imageContainer.innerHTML = `<img id="carousel-image" src="" alt="Imagem do carrossel" />`;
+    }
+
+    const img = document.getElementById('carousel-image');
+    img.style.opacity = 0;
+
+    setTimeout(() => {
+      img.src = images[index];
+      bgElement.style.backgroundImage = `url('${images[index]}')`;
+      paginatorElement.textContent = `Imagem ${index + 1} de ${images.length}`;
+      img.style.opacity = 1;
+    }, 300);
+
+    prevBtn.disabled = false;
+    nextBtn.disabled = false;
+    deleteImageBtn.disabled = false;
   }
 
-  const img = document.getElementById('carousel-image');
-  img.style.opacity = 0;
-
-  setTimeout(() => {
-    img.src = images[index];
-    bgElement.style.backgroundImage = `url('${images[index]}')`;
-    paginatorElement.textContent = `Imagem ${index + 1} de ${images.length}`;
-    img.style.opacity = 1;
-  }, 300);
-
-  prevBtn.disabled = false;
-  nextBtn.disabled = false;
-  deleteImageBtn.disabled = false;
-}
-
-function openAddImageModal() {
-  imageUrlInput.value = '';
-  modalOverlay.classList.add('active');
-  imageUrlInput.focus();
-}
-
-function closeAddImageModal() {
-  modalOverlay.classList.remove('active');
-}
-
-function saveNewImage() {
-  console.info('Saving new image.');
-
-  const url = imageUrlInput.value.trim();
-
-  if (!url) {
-    return;
+  function openAddImageModal() {
+    imageUrlInput.value = '';
+    modalOverlay.classList.add('active');
+    imageUrlInput.focus();
   }
 
-  images.push(url);
-  persistImages(images);
-  currentIndex = images.length - 1;
+  function closeAddImageModal() {
+    modalOverlay.classList.remove('active');
+  }
 
+  function saveNewImage() {
+    console.info('Saving new image.');
+
+    const url = imageUrlInput.value.trim();
+
+    if (!url) {
+      return;
+    }
+
+    images.push(url);
+    persistImages(images);
+    currentIndex = images.length - 1;
+
+    updateImage(currentIndex);
+
+    closeAddImageModal();
+  }
+
+  prevBtn.addEventListener('click', () => {
+    if (noImages() || justOneImage()) {
+      return;
+    }
+
+    console.info("Navigating to previous image");
+
+    currentIndex = (currentIndex - 1 + images.length) % images.length;
+
+    updateImage(currentIndex);
+  });
+
+  nextBtn.addEventListener('click', () => {
+    if (noImages() || justOneImage()) {
+      return;
+    }
+
+    console.info("Navigating to next image");
+
+    currentIndex = (currentIndex + 1) % images.length;
+
+    updateImage(currentIndex);
+  });
+
+  addImageBtn.addEventListener('click', () => {
+    openAddImageModal();
+  });
+
+  confirmAddBtn.addEventListener('click', () => {
+    saveNewImage();
+  });
+
+  document.getElementById('delete-image').addEventListener('click', () => {
+    if (images.length === 0) {
+      updateImage(0);
+      return;
+    }
+
+    console.info("Deleting image");
+
+    images.splice(currentIndex, 1);
+
+    persistImages(images);
+
+    if (currentIndex >= images.length) {
+      currentIndex = 0;
+    }
+
+    updateImage(currentIndex);
+  });
+
+  window.onkeydown = (event) => {
+    if (event.key !== 'Escape' || !modalOverlay.classList.contains('active')) {
+      return;
+    }
+
+    closeAddImageModal();
+  };
+
+  // Starts carousel at first image
   updateImage(currentIndex);
-
-  closeAddImageModal();
 }
-
-prevBtn.addEventListener('click', () => {
-  if (noImages() || justOneImage()) {
-    return;
-  }
-
-  console.info("Navigating to previous image");
-
-  currentIndex = (currentIndex - 1 + images.length) % images.length;
-
-  updateImage(currentIndex);
-});
-
-nextBtn.addEventListener('click', () => {
-  if (noImages() || justOneImage()) {
-    return;
-  }
-
-  console.info("Navigating to next image");
-
-  currentIndex = (currentIndex + 1) % images.length;
-
-  updateImage(currentIndex);
-});
-
-addImageBtn.addEventListener('click', () => {
-  openAddImageModal();
-});
-
-confirmAddBtn.addEventListener('click', () => {
-  saveNewImage();
-});
-
-document.getElementById('delete-image').addEventListener('click', () => {
-  if (images.length === 0) {
-    updateImage(0);
-    return;
-  }
-
-  console.info("Deleting image");
-
-  images.splice(currentIndex, 1);
-
-  persistImages(images);
-
-  if (currentIndex >= images.length) {
-    currentIndex = 0;
-  }
-
-  updateImage(currentIndex);
-});
-
-window.onkeydown = (event) => {
-  if (event.key !== 'Escape' || !modalOverlay.classList.contains('active')) {
-    return;
-  }
-
-  closeAddImageModal();
-};
-
-// Starts carousel at first image
-updateImage(currentIndex);
