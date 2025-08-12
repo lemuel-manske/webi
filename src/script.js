@@ -29,10 +29,12 @@ function getStoredImages() {
   }
 }
 
+const API = 'https://jsonplaceholder.typicode.com/photos';
+
 function getApiImages() {
   console.info('Retrieving images from api.');
 
-  const apiImages = fetch('https://jsonplaceholder.typicode.com/photos?_limit=50')
+  const apiImages = fetch(API + '?_limit=10')
     .then(res => res.json())
 
   try {
@@ -43,7 +45,12 @@ function getApiImages() {
 }
 
 getApiImages().then(apiImages => {
-  runApplication([...getStoredImages(), ...apiImages]);
+  const mappedImages = apiImages.map(img => ({
+    id: img.id,
+    url: img.url
+  }));
+
+  runApplication([...getStoredImages(), ...mappedImages]);
 })
 
 function runApplication(images) {
@@ -118,34 +125,43 @@ function runApplication(images) {
     modalOverlay.classList.remove('active');
   }
 
-  function saveNewImage(id) {
-    console.info('Saving new image.');
+  function updateImageById(id) {
+    const image = images.find(img => img.id === id);
 
-    const url = imageUrlInput.value.trim();
-
-    if (!url) {
-      return;
-    }
-
-    if (!id) {
-      images.push({ id: ++maxId, url });
+    if (image) {
+      image.url = url;
       persistImages(images);
-      currentIndex = images.length - 1;
-    } else {
-      const image = images.find(img => img.id === id);
 
-      if (image) {
-        image.url = url;
-        persistImages(images);
-        updateImage(currentIndex);
-      } else {
-        console.error(`Image with id ${id} not found.`);
-      }
+      updateImage(currentIndex);
+    } else {
+      console.error(`Image with id ${id} not found.`);
     }
+
+    const newImage = images[currentIndex];
+
+    const updateImageRequest = new Request(API, {
+      method: "PUT",
+      body: { id: newImage.id, url: newImage.url }
+    })
+
+    fetch(updateImageRequest)
+  }
+
+  function addNewImage() {
+    images.push({ id: ++maxId, url });
+    persistImages(images);
+    currentIndex = images.length - 1;
 
     updateImage(currentIndex);
 
-    closeAddImageModal();
+    const newImage = images[currentIndex];
+
+    const addImageRequest = new Request(API, {
+      method: "POST",
+      body: { id: maxId, url: newImage.url }
+    })
+
+    fetch(addImageRequest)
   }
 
   prevBtn.addEventListener('click', () => {
@@ -187,14 +203,29 @@ function runApplication(images) {
   });
 
   confirmAddBtn.addEventListener('click', () => {
-    const currImageId = images[currentIndex].id
+    const id = images[currentIndex].id
 
-    saveNewImage(isAdding ? null : currImageId);
+    console.info('Saving new image.');
+
+    const url = imageUrlInput.value.trim();
+
+    if (!url) {
+      return;
+    }
+
+    if (isAdding) {
+      addNewImage()
+    } else {
+      updateImageById(id);
+    }
+
+    closeAddImageModal();
   });
 
-  document.getElementById('delete-image').addEventListener('click', () => {
+  deleteImageBtn.addEventListener('click', () => {
     if (images.length === 0) {
       updateImage(0);
+
       return;
     }
 
@@ -209,6 +240,13 @@ function runApplication(images) {
     }
 
     updateImage(currentIndex);
+
+    const deleteImageRequest = new Request(API, {
+      method: "DELETE",
+      body: { id: images[currentIndex].id }
+    })
+
+    fetch(deleteImageRequest)
   });
 
   window.onkeydown = (event) => {
