@@ -20,6 +20,10 @@ function noImages() {
   return images.length === 0;
 }
 
+function justOneImage() {
+  return images.length === 1;
+}
+
 function getImages() {
   console.info('Retrieving images from `localStorage`.');
 
@@ -111,11 +115,11 @@ function saveNewImage() {
 }
 
 prevBtn.addEventListener('click', () => {
-  console.info("Navigating to previous image");
-
-  if (noImages()) {
+  if (noImages() || justOneImage()) {
     return;
   }
+
+  console.info("Navigating to previous image");
 
   currentIndex = (currentIndex - 1 + images.length) % images.length;
 
@@ -123,11 +127,11 @@ prevBtn.addEventListener('click', () => {
 });
 
 nextBtn.addEventListener('click', () => {
-  console.info("Navigating to next image");
-
-  if (noImages()) {
+  if (noImages() || justOneImage()) {
     return;
   }
+
+  console.info("Navigating to next image");
 
   currentIndex = (currentIndex + 1) % images.length;
 
@@ -143,12 +147,12 @@ confirmAddBtn.addEventListener('click', () => {
 });
 
 document.getElementById('delete-image').addEventListener('click', () => {
-  console.info("Deleting image");
-
   if (images.length === 0) {
     updateImage(0);
     return;
   }
+
+  console.info("Deleting image");
 
   images.splice(currentIndex, 1);
 
